@@ -1,6 +1,10 @@
 import threading
+from multiprocessing import Pool, Manager
 
-final_dict=dict()
+
+manager = Manager()
+
+final_dict=manager.dict()
 def process(chunk):
     words = chunk.split()
     for word in words:
@@ -9,17 +13,14 @@ def process(chunk):
         else:
             final_dict[word] = 1
 
-chunksize=10000
+chunksize=10000000
 
 if __name__ == '__main__':
 
-    pool = Pool(5)
-    jobs = []
     with open("test","r") as f:
         while True:
             t = f.read(chunksize)
             t1 = threading.Thread(target=process, args=(t,))
             t1.start()
-            jobs.append(t1)
 
     print(final_dict)
