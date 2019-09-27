@@ -1,17 +1,17 @@
 import multiprocessing as mp
-import time
+import time,re,csv
 from collections import Counter
-chunk_size = 10000000
-
-
+chunk_size = 100000000
+        
 def read_lines_in_chunk(chunk,final_dict):
-    words = chunk.split()
+    words = re.findall(r'(\w*) ',chunk)
     result = Counter(words)
     for i in result.keys():
         if i in final_dict.keys():
             final_dict[i] += result[i]
         else:
             final_dict[i] = result[i]
+
 
 def start_processing():
     m =mp.Manager()
@@ -24,12 +24,14 @@ def start_processing():
             if not data:
                 break
             else:
-                print("Started th")
                 pool.apply_async(read_lines_in_chunk, args=(data,final_dict, ))
 
     pool.close()
     pool.join()
-    print(final_dict)
+    with open('dict.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        for key, value in final_dict.items():
+            writer.writerow([key, value])
     
 
 if __name__ == '__main__':
